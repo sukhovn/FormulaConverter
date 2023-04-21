@@ -1,0 +1,15 @@
+Variables:
+x
+m
+d
+Substitute Variables:
+L, l
+A0[x], y[0]
+\[Delta]0[x], y[1]
+\[Phi]0[x], y[2]
+Derivative[1][a0][x], y[4]
+\[Kappa], kappa
+Functions:
+Sin, sin
+Cos, cos
+Tan, tan
