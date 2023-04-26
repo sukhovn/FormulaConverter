@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]){
 
 	delete file_formula;
 
-	// std::string test_string = "-5 + (a + asd a/b) / (c + d)^(-z) + e * (x + y) - Sin[a*x + b]";
+	// std::string test_string = "-5 + (a + asd a/b) / (c + d)^(-z) + e * (x + y) - Sin[a*x + b] + Derivative[1][A][x + y, x - y]^2";
 	// // std::string test_string = "Sin[c*(a + b) + 2^x] + f";
 	// // std::string test_string = "- (a + b) + b - c + d";
 	// // std::string test_string = "Cos[2 x] a";
@@ -68,6 +68,7 @@ int main(int argc, char const *argv[]){
 	// Parser_Mathematica parser;
 	// parser.add_variables({"a", "b", "c", "z", "d", "x", "y", "e"});
 	// parser.add_variables_substitutions({{"asd", "r"}});
+	// parser.add_functions({{"Derivative[1][A]", "dA"}});
 	// FormulaBlock *formula = parser.parse_formula(test_string);
 
 	// std::cout << *formula;

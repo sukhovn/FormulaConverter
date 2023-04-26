@@ -18,13 +18,7 @@ class Parser_Mathematica{
 		using namespace ParsingRoutines;
 
 		//Checking if sting is empty
-		int indx = formula_string.size()-1;
-		for(; indx >= 0; --indx){
-			if(formula_string[indx] != ' ')
-				break;
-		}
-
-		if(indx == -1){
+		if(formula_string.size() == 0){
 			std::cout << "Caught empty expression" << std::endl;
 			throw("Invalid expression");
 			return nullptr;
@@ -33,20 +27,30 @@ class Parser_Mathematica{
 		FormulaBlock *new_block = new FormulaBlock('e', 'n');
 
 		//Detecting functions
-		for(indx = 0; indx < formula_string.size(); ++indx){
-			if(formula_string[indx] == '[') break;
-		}
+		if(formula_string[formula_string.size()-1] == ']'){
+			int len = group_bracket_block_backwards(formula_string, formula_string.size()-1, '[', ']');
 
-		//Update to include multiple arguments
-		if(indx != formula_string.size() && functions_list.count(formula_string.substr(0, indx))){
-			int len = group_bracket_block(formula_string, indx, '[', ']');
+			std::string function_name = formula_string.substr(0, formula_string.size()-len);
+			if(functions_list.count(function_name)){
+				new_block->type = 'f';
+				new_block->content = functions_list[function_name];
 
-			FormulaBlock *bracket = process_elementary_operations(parse_elementary_operations(formula_string.substr(indx+1, len-2)));
-			new_block->subblocks.push_back(bracket);
-			new_block->type = 'f';
-			new_block->content = functions_list[formula_string.substr(0, indx)];
+				std::string function_arguments = formula_string.substr(formula_string.size()+1-len, len-2);
 
-			return new_block;
+				int block_start = 0;
+				for(int i = 0; i < function_arguments.size(); ++i){
+					if(function_arguments[i] == ','){
+						FormulaBlock *bracket = process_elementary_operations(parse_elementary_operations(function_arguments.substr(block_start, i-block_start)));
+						new_block->subblocks.push_back(bracket);
+						block_start = i+1;
+					}
+				}
+
+				FormulaBlock *bracket = process_elementary_operations(parse_elementary_operations(function_arguments.substr(block_start, formula_string.size()-block_start)));
+				new_block->subblocks.push_back(bracket);
+
+				return new_block;
+			}
 		}
 
 		new_block->content = formula_string;

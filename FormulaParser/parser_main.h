@@ -58,6 +58,24 @@ namespace ParsingRoutines{
 		throw("Invalid expression");
 	}
 
+	int group_bracket_block_backwards(const std::string &str, int end, char st_bracket, char end_bracket){
+		if(str[end] != end_bracket)
+			return 0;
+
+		int len = 1;
+		int open_brackets = 1;
+		for(int i = end-1; i >= 0; --i, ++len){
+			if(str[i] == end_bracket) ++open_brackets;
+			if(str[i] == st_bracket) --open_brackets;
+
+			if(open_brackets == 0)
+				return ++len;
+		}
+
+		std::cout << "Starting bracket \'" << st_bracket << "\' not found" << std::endl;
+		throw("Invalid expression");
+	}
+
 	bool is_integer(const std::string& s){
 	    return !s.empty() && std::find_if(s.begin(), s.end(),
 					[](unsigned char c) {return !std::isdigit(c) && !(c == '-');}) == s.end();
@@ -150,6 +168,11 @@ public:
 		else if(type == '^'){
 			if((subblocks[0]->subblocks).empty() && (subblocks[0]->content == "E"))
 				return "std::exp(" + subblocks[1]->c_output() + ')';
+			//Treating powers 2 and 3 of constants as special cases
+			else if(subblocks[1]->content == "2" && subblocks[0]->type == 'v')
+				return subblocks[0]->c_output() + "*" + subblocks[0]->c_output();
+			else if(subblocks[1]->content == "3" && subblocks[0]->type == 'v')
+				return subblocks[0]->c_output() + "*" + subblocks[0]->c_output() + "*" + subblocks[0]->c_output();
 			else
 				return "std::pow(" + subblocks[0]->c_output() + ", " + subblocks[1]->c_output() + ')';
 		}
@@ -161,11 +184,16 @@ public:
 		}
 		else if(type == 'f'){
 			std::unordered_map<std::string, std::string> c_functions = {{"sin", "std::sin"}, {"cos", "std::cos"}, {"tan", "std::tan"}};
-			if(c_functions.count(content)){
-				return c_functions[content] + '(' + subblocks[0]->c_output() + ')';
-			}
+			std::string result;
+			if(c_functions.count(content))
+				result = c_functions[content] + '(';
 			else
-				return content + '(' + subblocks[0]->c_output() + ')';
+				result = content + '(';
+			for(int i = 0; i < subblocks.size(); ++i){
+				if(i) result = result + ", ";
+				result = result + subblocks[i]->c_output();
+			}
+			return result + ')';
 		}
 
 		std::cout << "Invalid construction encountered in c_output" << std::endl;
